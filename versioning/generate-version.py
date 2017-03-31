@@ -102,13 +102,12 @@ appInfoFile.close()
 appCiInfoFile = open(opts.f)
 # Use round trip load and dump to store file with current format and comments
 appCiInfo = yaml.round_trip_load(appCiInfoFile)
+# Should already be updated by inc-build-number.py
 currentBuildNumber = int(appCiInfo['ci_data']['current_build_number'])
 appCiInfoFile.close()
 
-newBuildNumber = currentBuildNumber + 1
-
 appInfoVersion = str(appInfo['version']['major']) + '.' + str(appInfo['version']['minor']) \
-                 + '.' + str(appInfo['version']['patch']) + '+' + str(newBuildNumber)
+                 + '.' + str(appInfo['version']['patch']) + '+' + str(currentBuildNumber)
 
 # Identify new Tag
 newTag = ""
@@ -137,7 +136,7 @@ try:
         if isMajorGreater or isMinorGreater or isPatchGreater:
             newTag = appInfoVersion
         else:
-            newTag = str(latestMajor) + '.' + str(latestMinor) + '.' + str(latestPatch) + '+' + str(newBuildNumber)
+            newTag = str(latestMajor) + '.' + str(latestMinor) + '.' + str(latestPatch) + '+' + str(currentBuildNumber)
 # If no git tags exist
 except subprocess.CalledProcessError as describeException:
     if str(describeException.stderr.decode('ascii').rstrip()).__contains__("fatal: No names found"):
@@ -149,8 +148,6 @@ except subprocess.CalledProcessError as describeException:
 
 # Update app-ci-info.yml file
 with open(opts.f, 'w') as f:
-    # Update build number
-    appCiInfo['ci_data']['current_build_number'] = newBuildNumber
     appCiInfo['ci_data']['current_version'] = newTag
     yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
     print("New version: {}".format(newTag))
