@@ -55,7 +55,7 @@ except ImportError:
 
 argParse = argparse.ArgumentParser()
 argParse.add_argument('-d', '--repo-dir', dest='d')
-argParse.add_argument('-f', '--appinfo-file', dest='f')
+argParse.add_argument('-f', '--app-ci-info-file', dest='f')
 
 opts = argParse.parse_args()
 
