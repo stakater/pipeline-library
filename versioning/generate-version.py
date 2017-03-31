@@ -42,8 +42,12 @@
 #
 # Authors: Hazim
 #
-# Argument 1 (-f, --appinfo-file): File path to the app info yml file
+# Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
 # Argument 2 (-d, --repo-dir): Path to the git repository directory for which the version is to be generated
+#
+# Note: App CI info file is the one which is required by stakater to store CI/CD related data.
+# Wheres the app info file is the one which is placed in the user's application repo containing
+# details about the repo/project and version to bump
 ###############################################################################
 
 import pip
@@ -60,10 +64,12 @@ except ImportError:
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
-argParse.add_argument('-f', '--appinfo-file', dest='f')
+argParse.add_argument('-f', '--app-ci-info-file', dest='f')
 argParse.add_argument('-d', '--repo-dir', dest='d')
 
 opts = argParse.parse_args()
+appInfoFileName = 'app-info.yml'
+versionRegex = r'[0-9]+.[0-9]+.[0-9]+\+[0-9]+'
 
 if not any([opts.d]):
     argParse.print_usage()
@@ -72,7 +78,7 @@ if not any([opts.d]):
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--appinfo-file` must be specified')
+    print('Argument `-f` or `--app-ci-info-file` must be specified')
     quit()
 
 repoDir = opts.d
@@ -82,13 +88,22 @@ if not os.path.isdir(repoDir):
 if not os.path.isdir(repoDir + '/.git'):
     print("Given repository directory is not a git repository")
     exit(1)
+if not os.path.isfile(repoDir + '/' + appInfoFileName):
+    print('Given repository does not contain a "app-info.yml" file.\n',
+          'Please make sure you place that file with version info in the repository directory.')
+    exit(1)
 
-# read from file
-appInfoFile = open(opts.f)
-# Use round trip load and dump to store file with current format and comments
+# Read from app-info.yml
+appInfoFile = open(repoDir + '/' + appInfoFileName)
 appInfo = yaml.round_trip_load(appInfoFile)
-currentBuildNumber = int(appInfo['ci_data']['current_build_number'])
 appInfoFile.close()
+
+# read from app-ci-info.yml
+appCiInfoFile = open(opts.f)
+# Use round trip load and dump to store file with current format and comments
+appCiInfo = yaml.round_trip_load(appCiInfoFile)
+currentBuildNumber = int(appCiInfo['ci_data']['current_build_number'])
+appCiInfoFile.close()
 
 newBuildNumber = currentBuildNumber + 1
 
@@ -104,8 +119,7 @@ try:
     if describeProc.returncode == 0:
         # Decode pipe output in ascii and strip tailing whitespace characters
         latestTag = describeProc.stdout.decode('ascii').rstrip()
-        versionFormatMatch = re.match(r'[0-9]+.[0-9]+.[0-9]+\+[0-9]+', latestTag)
-        if not versionFormatMatch:
+        if not re.match(versionRegex, latestTag):
             print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build_number"',
                   '\nPlease make sure the latest tag on your git repo is of the given format or the repo does not '
                   'have any tags')
@@ -133,9 +147,10 @@ except subprocess.CalledProcessError as describeException:
                                                   describeException.stderr.decode('ascii').rstrip()))
         exit(1)
 
-# Update yml file
+# Update app-ci-info.yml file
 with open(opts.f, 'w') as f:
     # Update build number
-    appInfo['ci_data']['current_build_number'] = newBuildNumber
-    yaml.round_trip_dump(appInfo, f, default_flow_style=False)
+    appCiInfo['ci_data']['current_build_number'] = newBuildNumber
+    appCiInfo['ci_data']['current_version'] = newTag
+    yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
     print("New version: {}".format(newTag))

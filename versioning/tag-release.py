@@ -36,7 +36,7 @@
 #
 # Authors: Hazim
 #
-# Argument 1 (-f, --appinfo-file): File path to the app info yml file
+# Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
 # Argument 2 (-d, --repo-dir): Path to the git repository directory for which the version is to be generated
 ###############################################################################
 
@@ -66,7 +66,7 @@ if not any([opts.d]):
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--appinfo-file` must be specified')
+    print('Argument `-f` or `--app-ci-info-file` must be specified')
     quit()
 
 repoDir = opts.d
@@ -79,20 +79,19 @@ if not os.path.isdir(repoDir + '/.git'):
 
 versionRegex = r'[0-9]+.[0-9]+.[0-9]+\+[0-9]+'
 
-appInfoFile = open(opts.f)
-appInfo = yaml.round_trip_load(appInfoFile)
-appInfoFile.close()
+appCiInfoFile = open(opts.f)
+appCiInfo = yaml.round_trip_load(appCiInfoFile)
+appCiInfoFile.close()
 
-if int(appInfo['ci_data']['current_build_number']) <= 0:
+if int(appCiInfo['ci_data']['current_build_number']) <= 0:
     print('current_build_number has not been updated yet\n',
           'Run "generate-version.py" first to update the current build number')
     exit(1)
 
-version = str(appInfo['version']['major']) + '.' + str(appInfo['version']['minor']) \
-          + '.' + str(appInfo['version']['patch']) + '+' + str(appInfo['ci_data']['current_build_number'])
+version = str(appCiInfo['ci_data']['current_version'])
 
 if not re.match(versionRegex, version):
-    print('The given version is not of the format: "major.minor.patch+build_number"',
+    print('The given version in the app ci yml file is not of the format: "major.minor.patch+build_number"',
           '\nPlease make sure that the version is of the given format')
     exit(1)
 
@@ -132,7 +131,7 @@ try:
         if not (isMajorGreater or isMinorGreater or isPatchGreater or isBuildNumberGreater):
             print('The given version is not greater/higher than the version on the latest git tag',
                   'Please Make sure the given version is greater or higher than the version on the latest git tag')
-            # exit(1)
+            exit(1)
 # If no git tags exist
 except subprocess.CalledProcessError as describeException:
     # If not error for no tags found, then exit and display the error
