@@ -31,15 +31,21 @@
 ###############################################################################
 
 ###############################################################################
-# This script reads, increments and updates the build number in the
-# app CI info file on each build
+# This script writes the given map of properties to the specified api CI info file
 #
-# Authors: Hazim
+#
+# Authors: Hamza
 #
 # Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
+# Argument 2 (-d, --ci-repo-dir): Path to the directory of git CI repo
+#
+# Note: App CI info file is the one which is required by stakater to store CI/CD related data.
 ###############################################################################
+
 import pip
 import argparse
+import json
+import os
 
 # Import ruamel.yaml if not exists
 try:
@@ -50,23 +56,49 @@ except ImportError:
 
 argParse = argparse.ArgumentParser()
 argParse.add_argument('-f', '--app-ci-info-file', dest='f')
+argParse.add_argument('-d', '--ci-repo-dir', dest='d')
+argParse.add_argument('-p', '--properties-map', dest='p')
 
 opts = argParse.parse_args()
+
+if not any([opts.d]):
+    argParse.print_usage()
+    print('Argument `-d` or `--ci-repo-dir` must be specified')
+    quit()
 
 if not any([opts.f]):
     argParse.print_usage()
     print('Argument `-f` or `--app-ci-info-file` must be specified')
     quit()
 
-appCiInfoFile = open(opts.f)
-# Use round trip load and dump to store file with current format and comments
-appCiInfo = yaml.round_trip_load(appCiInfoFile)
-currentBuildNumber = int(appCiInfo['ci-data']['current-build-number'])
-appCiInfoFile.close()
+if not any([opts.p]):
+    argParse.print_usage()
+    print('Argument `-p` or `--properties-map` must be specified')
+    quit()
 
-# Write new build number to file
-with open(opts.f, 'w') as f:
-    newBuildNumber = currentBuildNumber + 1
-    appCiInfo['ci-data']['current-build-number'] = newBuildNumber
-    yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
-    print("Build Number: {}".format(newBuildNumber))
+repoDir = opts.d
+if not os.path.isdir(repoDir):
+    print("Given Repository path does not exist or is not a directory")
+    exit(1)
+if not os.path.isdir(repoDir + '/.git'):
+    print("Given repository directory is not a git repository")
+    exit(1)
+
+# read from app-ci-info.yml
+with open(opts.d + '/' + opts.f, 'r') as appCiInfoFile:
+    # Use round trip load and dump to store file with current format and comments
+    appCiInfo = yaml.round_trip_load(appCiInfoFile)
+    properties = json.loads(opts.p)
+    # Updates properties
+    for prop in properties:
+        parentKeys = prop.split('.')
+        temp = appCiInfo
+        # Adds parent keys if not present
+        for i in range(len(parentKeys)-1):
+            if not(parentKeys[i] in temp):
+                temp[parentKeys[i]] = {}
+            temp = temp[parentKeys[i]]
+        # Adds value to last key
+        temp[parentKeys[len(parentKeys)-1]] = properties[prop]
+with open(opts.d + '/' + opts.f, 'w') as appCiInfoFile:
+    yaml.round_trip_dump(appCiInfo, appCiInfoFile, default_flow_style=False)

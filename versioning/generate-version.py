@@ -31,13 +31,13 @@
 ###############################################################################
 
 ###############################################################################
-# This script generates a version of the format <major>.<minor>.<patch>+<build_number>,
+# This script generates a version of the format <major>.<minor>.<patch>+<build-number>,
 # following the principles of semantic versioning.
 #
 # The script checks if the given repository has any git tags assign to it. In case the repo already has
 # tags assigned, the script will compare the version from the latest assigned tag and the version from
 # app info yml file. If the version from the yml file is greater, then that version will be assigned,
-# else the version from latest tag with incremented build_number will be assigned.
+# else the version from latest tag with incremented build-number will be assigned.
 # The new build number is also saved to the app info yml file.
 #
 # Authors: Hazim
@@ -103,7 +103,7 @@ appCiInfoFile = open(opts.f)
 # Use round trip load and dump to store file with current format and comments
 appCiInfo = yaml.round_trip_load(appCiInfoFile)
 # Should already be updated by inc-build-number.py
-currentBuildNumber = int(appCiInfo['ci_data']['current_build_number'])
+currentBuildNumber = int(appCiInfo['ci-data']['current-build-number'])
 appCiInfoFile.close()
 
 appInfoVersion = str(appInfo['version']['major']) + '.' + str(appInfo['version']['minor']) \
@@ -119,7 +119,7 @@ try:
         # Decode pipe output in ascii and strip tailing whitespace characters
         latestTag = describeProc.stdout.decode('ascii').rstrip()
         if not re.match(versionRegex, latestTag):
-            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build_number"',
+            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build-number"',
                   '\nPlease make sure the latest tag on your git repo is of the given format or the repo does not '
                   'have any tags')
             exit(1)
@@ -148,6 +148,6 @@ except subprocess.CalledProcessError as describeException:
 
 # Update app-ci-info.yml file
 with open(opts.f, 'w') as f:
-    appCiInfo['ci_data']['current_version'] = newTag
+    appCiInfo['ci-data']['current-version'] = newTag
     yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
     print("New version: {}".format(newTag))

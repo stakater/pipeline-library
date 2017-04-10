@@ -83,15 +83,15 @@ appCiInfoFile = open(opts.f)
 appCiInfo = yaml.round_trip_load(appCiInfoFile)
 appCiInfoFile.close()
 
-if int(appCiInfo['ci_data']['current_build_number']) <= 0:
-    print('current_build_number has not been updated yet\n',
+if int(appCiInfo['ci-data']['current-build-number']) <= 0:
+    print('current-build-number has not been updated yet\n',
           'Run "generate-version.py" first to update the current build number')
     exit(1)
 
-version = str(appCiInfo['ci_data']['current_version'])
+version = str(appCiInfo['ci-data']['current-version'])
 
 if not re.match(versionRegex, version):
-    print('The given version in the app ci yml file is not of the format: "major.minor.patch+build_number"',
+    print('The given version in the app ci yml file is not of the format: "major.minor.patch+build-number"',
           '\nPlease make sure that the version is of the given format')
     exit(1)
 
@@ -104,7 +104,7 @@ try:
         # Decode pipe output in ascii and strip tailing whitespace characters
         latestTag = describeProc.stdout.decode('ascii').rstrip()
         if not re.match(versionRegex, latestTag):
-            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build_number"',
+            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build-number"',
                   '\nPlease make sure the latest tag on your git repo is of the given format or the repo does not '
                   'have any tags')
             exit(1)
