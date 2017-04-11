@@ -31,7 +31,7 @@
 ###############################################################################
 
 
-AWS_REGION=""
+AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}')
 DEPLOY_STATE_KEY=""
 APP_NAME=""
 ENVIRONMENT=""
@@ -41,7 +41,6 @@ IS_ELB_INTERNAL=false;
 ENV_STATE_KEY=""
 
 kOptionFlag=false;
-rOptionFlag=false;
 aOptionFlag=false;
 eOptionFlag=false;
 fOptionFlag=false;
@@ -52,10 +51,6 @@ do
         k)
           DEPLOY_STATE_KEY=$OPTARG
           kOptionFlag=true;
-          ;;
-        r)
-          rOptionFlag=true;
-          AWS_REGION=$OPTARG
           ;;
         a)
           aOptionFlag=true;
@@ -79,7 +74,7 @@ do
           IS_ELB_INTERNAL=$OPTARG
           ;;
         *)
-          echo "Usage: $(basename $0) -k <key for the state file> -r <aws-region> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> -t <IS ELB INTERNAL ? > (optional)"
+          echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> -t <IS ELB INTERNAL ? > (optional)"
           exit 1
           ;;
     esac
@@ -87,7 +82,7 @@ done
 
 if ! $kOptionFlag || ! $rOptionFlag || ! $aOptionFlag || ! $eOptionFlag;
 then
-  echo "Usage: $(basename $0) -k <key for the state file> -r <aws-region> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> (optional) -t <IS ELB INTERNAL ? > (optional)"
+  echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> (optional) -t <IS ELB INTERNAL ? > (optional)"
   exit 1;
 fi
 

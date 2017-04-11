@@ -41,9 +41,9 @@
 # Input parameters
 APP_NAME=$1
 ENVIRONMENT=$2
-AWS_REGION=$3
 DEPLOY_STATE_KEY=$4
 
+AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}');
 CLUSTER_MIN_SIZE=1
 CLUSTER_MAX_SIZE=5
 CLUSTER_DESIRED_SIZE=$CLUSTER_MIN_SIZE

@@ -58,7 +58,7 @@ PARENT_KEY_NODE="ci-data.blue-green-deployment.${ENVIRONMENT}."
 parameters="{\"${PARENT_KEY_NODE}live-group\":\"${LIVE_GROUP}\",\
 \"${PARENT_KEY_NODE}blue-group-ami-id\":\"${BLUE_GROUP_AMI_ID}\",\
 \"${PARENT_KEY_NODE}green-group-ami-id\":\"${GREEN_GROUP_AMI_ID}\",\
-\"${PARENT_KEY_NODE}is-deployment-rollback-valid\":${IS_DEPLOYMENT_ROLLBACK_VALID},\
-\"${PARENT_KEY_NODE}is-group-switch-valid\":${IS_GROUP_SWITCH_VALID},\
-\"${PARENT_KEY_NODE}switched-to-new-group\":${SWITCHED_TO_NEW_GROUP}}"
-python3 /app/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /home/hamza/workspac/ci-info -p ${parameters} || exit 1
+\"${PARENT_KEY_NODE}is-deployment-rollback-valid\":\"${IS_DEPLOYMENT_ROLLBACK_VALID}\",\
+\"${PARENT_KEY_NODE}is-group-switch-valid\":\"${IS_GROUP_SWITCH_VALID}\",\
+\"${PARENT_KEY_NODE}switched-to-new-group\":\"${SWITCHED_TO_NEW_GROUP}\"}"
+python3 /app/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /app/stakater/ci-info -p ${parameters} || exit 1

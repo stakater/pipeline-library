@@ -85,5 +85,3 @@ with open(opts.f, 'r') as appCiInfoFile:
         temp = temp[parentKeys[i]]
 
     print(temp)
-with open(opts.f, 'w') as appCiInfoFile:
-    yaml.round_trip_dump(appCiInfo, appCiInfoFile, default_flow_style=False)
