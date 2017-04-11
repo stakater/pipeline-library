@@ -38,6 +38,7 @@
 #
 # Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
 # Argument 2 (-d, --ci-repo-dir): Path to the directory of git CI repo
+# Argument 3 (-p, --properties-map): Properties map to save in yml
 #
 # Note: App CI info file is the one which is required by stakater to store CI/CD related data.
 ###############################################################################
@@ -64,17 +65,17 @@ opts = argParse.parse_args()
 if not any([opts.d]):
     argParse.print_usage()
     print('Argument `-d` or `--ci-repo-dir` must be specified')
-    quit()
+    exit(1)
 
 if not any([opts.f]):
     argParse.print_usage()
     print('Argument `-f` or `--app-ci-info-file` must be specified')
-    quit()
+    exit(1)
 
 if not any([opts.p]):
     argParse.print_usage()
     print('Argument `-p` or `--properties-map` must be specified')
-    quit()
+    exit(1)
 
 repoDir = opts.d
 if not os.path.isdir(repoDir):

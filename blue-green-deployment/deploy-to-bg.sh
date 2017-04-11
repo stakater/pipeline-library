@@ -80,7 +80,7 @@ do
           ;;
         *)
           echo "Usage: $(basename $0) -k <key for the state file> -r <aws-region> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> -t <IS ELB INTERNAL ? > (optional)"
-          exit 0
+          exit 1
           ;;
     esac
 done
@@ -88,7 +88,7 @@ done
 if ! $kOptionFlag || ! $rOptionFlag || ! $aOptionFlag || ! $eOptionFlag;
 then
   echo "Usage: $(basename $0) -k <key for the state file> -r <aws-region> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> (optional) -t <IS ELB INTERNAL ? > (optional)"
-  exit 0;
+  exit 1;
 fi
 
 ##################
@@ -113,4 +113,4 @@ fi;
 ##############################################
 
 # Update blue green deployment group
-/gocd-data/scripts/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY}
+/gocd-data/scripts/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY} || exit 1

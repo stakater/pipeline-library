@@ -63,12 +63,12 @@ opts = argParse.parse_args()
 if not any([opts.f]):
     argParse.print_usage()
     print('Argument `-f` or `--app-ci-info-file` must be specified')
-    quit()
+    exit(1)
 
 if not any([opts.p]):
     argParse.print_usage()
     print('Argument `-p` or `--property` must be specified')
-    quit()
+    exit(1)
 
 # read from app-ci-info.yml
 with open(opts.f, 'r') as appCiInfoFile:
@@ -80,8 +80,8 @@ with open(opts.f, 'r') as appCiInfoFile:
     # Checks if key is available
     for i in range(len(parentKeys)):
         if not (parentKeys[i] in temp):
-            print("key not found")
-            exit(1)
+            print("null")
+            exit(0)
         temp = temp[parentKeys[i]]
 
     print(temp)

@@ -61,4 +61,4 @@ parameters="{\"${PARENT_KEY_NODE}live-group\":\"${LIVE_GROUP}\",\
 \"${PARENT_KEY_NODE}is-deployment-rollback-valid\":${IS_DEPLOYMENT_ROLLBACK_VALID},\
 \"${PARENT_KEY_NODE}is-group-switch-valid\":${IS_GROUP_SWITCH_VALID},\
 \"${PARENT_KEY_NODE}switched-to-new-group\":${SWITCHED_TO_NEW_GROUP}}"
-result=`python3 /home/hamza/workspace/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /home/hamza/workspac/ci-info -p ${parameters}`
+result=`python3 /app/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /home/hamza/workspac/ci-info -p ${parameters}` || exit 1

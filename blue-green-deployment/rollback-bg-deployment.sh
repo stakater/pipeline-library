@@ -62,12 +62,12 @@ then
    exit 1;
 fi;
 # Read parameter values from file
-TF_STATE_BUCKET_NAME=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} tf_state_bucket_name`
-TF_GLOBAL_ADMIRAL_STATE_KEY=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} global_admiral_state_key`
-ENV_STATE_KEY=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} env_state_key`
-DEPLOY_INSTANCE_TYPE=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} instance_type`
-SSL_CERTIFICATE_ARN=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} ssl_certificate_arn`
-IS_ELB_INTERNAL=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} is_elb_internal`
+TF_STATE_BUCKET_NAME=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} tf_state_bucket_name` || exit 1
+TF_GLOBAL_ADMIRAL_STATE_KEY=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} global_admiral_state_key` || exit 1
+ENV_STATE_KEY=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} env_state_key` || exit 1
+DEPLOY_INSTANCE_TYPE=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} instance_type` || exit 1
+SSL_CERTIFICATE_ARN=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} ssl_certificate_arn` || exit 1
+IS_ELB_INTERNAL=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} is_elb_internal` || exit 1
 # Remove unwanted characters
 TF_STATE_BUCKET_NAME=${TF_STATE_BUCKET_NAME//\"}
 TF_GLOBAL_ADMIRAL_STATE_KEY=${TF_GLOBAL_ADMIRAL_STATE_KEY//\"}
@@ -80,11 +80,11 @@ IS_ELB_INTERNAL=${IS_ELB_INTERNAL//\"}
 DEPLOYMENT_STATE_FILE="/app/stakater/ci-info/${APP_NAME}/app-ci-info.yml"
 PARENT_KEY_NODE="ci-data.blue-green-deployment.${ENVIRONMENT}."
 # Read parameters from file
-BLUE_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id`
-CURRENT_GREEN_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id`
-LIVE_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group`
-IS_DEPLOYMENT_ROLLBACK_VALID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}is-deployment-rollback-valid`
-SWITCHED_TO_NEW_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}switched-to-new-group`
+BLUE_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id` || exit 1
+CURRENT_GREEN_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id` || exit 1
+LIVE_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group` || exit 1
+IS_DEPLOYMENT_ROLLBACK_VALID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}is-deployment-rollback-valid` || exit 1
+SWITCHED_TO_NEW_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}switched-to-new-group` || exit 1
 ##############################################################
 
 ## For two stage rollback to previous group
@@ -264,13 +264,13 @@ echo "#######################################################################"
 # Write terraform variables to .tfvars file
 function write_terraform_variables
 {
-   /gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${TF_ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL}
+   /gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${TF_ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} || exit 1
 }
 
 # Apply terraform changes
 function apply_terraform_changes
 {
-   /gocd-data/scripts/terraform-apply-changes.sh ${APP_NAME} ${ENVIRONMENT} ${TF_STATE_BUCKET_NAME} ${DEPLOY_STATE_KEY} ${AWS_REGION}
+   /gocd-data/scripts/terraform-apply-changes.sh ${APP_NAME} ${ENVIRONMENT} ${TF_STATE_BUCKET_NAME} ${DEPLOY_STATE_KEY} ${AWS_REGION} || exit 1
    # Check status and fail pipeline if exit code 1 (error while applying changes)
    APPLY_CHANGES_STATUS=$?
    if [ ${APPLY_CHANGES_STATUS} = 1 ];
@@ -332,27 +332,27 @@ fi;
 ## Update deployment state file
 if [ $LIVE_GROUP == "null" ]
 then
-   /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} null null null false false false
+   /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} null null null false false false || exit 1
 elif [ $LIVE_GROUP == "blue" ]
 then
    if [ $CURRENT_GREEN_GROUP_AMI_ID == "null" ]
    then
-      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} null null null false false false
+      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} null null null false false false || exit 1
    else
       if ! $SWITCHED_TO_NEW_GROUP;
       then
-         /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} ${LIVE_GROUP} ${BLUE_GROUP_AMI_ID} null false false false
+         /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} ${LIVE_GROUP} ${BLUE_GROUP_AMI_ID} null false false false || exit 1
       else
-         /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} green ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false
+         /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} green ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false || exit 1
       fi;
    fi;
 elif [ $LIVE_GROUP == "green" ]
 then
    if ! $SWITCHED_TO_NEW_GROUP;
    then
-      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} ${LIVE_GROUP} ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false
+      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} ${LIVE_GROUP} ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false || exit 1
    else
-      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} blue ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false
+      /app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-state.sh ${APP_NAME} ${ENVIRONMENT} blue ${BLUE_GROUP_AMI_ID} ${GREEN_GROUP_AMI_ID} false false false || exit 1
    fi;
 fi;
 
