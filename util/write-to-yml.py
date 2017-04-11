@@ -83,7 +83,7 @@ if not os.path.isdir(repoDir):
 if not os.path.isdir(repoDir + '/.git'):
     print("Given repository directory is not a git repository")
     exit(1)
-
+print(opts.p)
 # read from app-ci-info.yml
 with open(opts.d + '/' + opts.f, 'r') as appCiInfoFile:
     # Use round trip load and dump to store file with current format and comments
