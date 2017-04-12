@@ -109,9 +109,9 @@ fi;
 DEPLOYMENT_STATE_FILE="/app/stakater/ci-info/${APP_NAME}/app-ci-info.yml"
 PARENT_KEY_NODE="ci-data.blue-green-deployment.${ENVIRONMENT}."
 # Read parameters from file
-BLUE_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id` || exit 1
-GREEN_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id` || exit 1
-LIVE_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group` || exit 1
+BLUE_GROUP_AMI_ID=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id` || exit 1
+GREEN_GROUP_AMI_ID=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id` || exit 1
+LIVE_GROUP=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group` || exit 1
 ##############################################################
 
 # Output values
@@ -206,6 +206,7 @@ echo "#######################################################################"
 ## Automated Deployment
 # Write terraform variables to .tfvars file
 /gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} || exit 1
+echo "\"/gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} \"${SSL_CERTIFICATE_ARN}\" ${IS_ELB_INTERNAL} || exit 1\""
 
 # Apply terraform changes
 /gocd-data/scripts/terraform-apply-changes.sh ${APP_NAME} ${ENVIRONMENT} ${TF_STATE_BUCKET_NAME} ${DEPLOY_STATE_KEY} ${AWS_REGION} || exit 1

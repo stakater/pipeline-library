@@ -31,48 +31,61 @@
 ###############################################################################
 
 ###############################################################################
-# This script reads the given property from specified yml file. Returns null if not present
-#
+# This script writes the given map of properties to the specified api CI info file
 #
 # Authors: Hamza
 #
-# Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
-# Argument 2 (-p, --property): Property whose value is to be read
+# Argument 1 (-m, --message): Commit Message
+# Argument 2 (-f, --files): Files To Commit
+# Argument 3 (-d, --repo-dir): Path to the directory of git repo
 #
-# Note: App CI info file is the one which is required by stakater to store CI/CD related data.
 ###############################################################################
 
 import argparse
-import ruamel.yaml as yaml
+import subprocess
+import os
+import json
 
 argParse = argparse.ArgumentParser()
-argParse.add_argument('-f', '--app-ci-info-file', dest='f')
-argParse.add_argument('-p', '--property', dest='p')
+argParse.add_argument('-m', '--message', dest='m')
+argParse.add_argument('-d', '--repo-dir', dest='d')
+argParse.add_argument('-f', '--files', dest='f')
 
 opts = argParse.parse_args()
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--app-ci-info-file` must be specified')
+    print('Argument `-f` or `--files` must be specified')
     exit(1)
 
-if not any([opts.p]):
+if not any([opts.d]):
     argParse.print_usage()
-    print('Argument `-p` or `--property` must be specified')
+    print('Argument `-d` or `--repo-dir` must be specified')
     exit(1)
 
-# read from app-ci-info.yml
-with open(opts.f, 'r') as appCiInfoFile:
-    # Use round trip load and dump to store file with current format and comments
-    appCiInfo = yaml.round_trip_load(appCiInfoFile)
-    prop = opts.p
-    parentKeys = prop.split('.')
-    temp = appCiInfo
-    # Checks if key is available
-    for i in range(len(parentKeys)):
-        if not (parentKeys[i] in temp):
-            print("null")
-            exit(0)
-        temp = temp[parentKeys[i]]
+if not any([opts.m]):
+    argParse.print_usage()
+    print('Argument `-m` or `--message` must be specified')
+    exit(1)
 
-    print(temp)
+repoDir = opts.d
+if not os.path.isdir(repoDir):
+    print("Given Repository path does not exist or is not a directory")
+    exit(1)
+if not os.path.isdir(repoDir + '/.git'):
+    print("Given repository directory is not a git repository")
+    exit(1)
+try:
+    files=json.loads(opts.f)
+except ValueError as ex:
+    print("Inavalid File map : " + str(ex))
+    exit(1)
+try:
+    #-C specifies the git directory and __add__ adds second array to first one
+    subprocess.run(['git', '-C', repoDir, 'add'].__add__(files), stdout=subprocess.PIPE,stderr=subprocess.PIPE, check=True)
+    subprocess.run(['git', '-C', repoDir, 'commit', '-m', opts.m])
+    subprocess.run(['git', '-C', repoDir, 'push'])
+except subprocess.CalledProcessError as addException:
+    print("Error Code: {} \nError: {}".format(addException.returncode,
+                                              addException.stderr.decode('ascii').rstrip()))
+    exit(1)

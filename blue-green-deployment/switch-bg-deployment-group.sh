@@ -34,14 +34,13 @@
 #------------------------------------------------
 # Argument1: APP_NAME
 # Argument2: ENVIRONMENT
-# Argument3: AWS_REGION
-# Argument4: DEPLOY_STATE_KEY
+# Argument3: DEPLOY_STATE_KEY
 #------------------------------------------------
 
 # Input parameters
 APP_NAME=$1
 ENVIRONMENT=$2
-DEPLOY_STATE_KEY=$4
+DEPLOY_STATE_KEY=$3
 
 AWS_REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}');
 CLUSTER_MIN_SIZE=1
@@ -79,10 +78,10 @@ IS_ELB_INTERNAL=${IS_ELB_INTERNAL//\"}
 DEPLOYMENT_STATE_FILE="/app/stakater/ci-info/${APP_NAME}/app-ci-info.yml"
 PARENT_KEY_NODE="ci-data.blue-green-deployment.${ENVIRONMENT}."
 # Read parameters from file
-BLUE_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id` || exit 1
-GREEN_GROUP_AMI_ID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id` || exit 1
-LIVE_GROUP=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group` || exit 1
-IS_GROUP_SWITCH_VALID=`/app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}is-group-switch-valid` || exit 1
+BLUE_GROUP_AMI_ID=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id` || exit 1
+GREEN_GROUP_AMI_ID=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id` || exit 1
+LIVE_GROUP=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}live-group` || exit 1
+IS_GROUP_SWITCH_VALID=`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}is-group-switch-valid` || exit 1
 ##############################################################
 
 # Output values

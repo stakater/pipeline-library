@@ -47,13 +47,7 @@ import pip
 import argparse
 import json
 import os
-
-# Import ruamel.yaml if not exists
-try:
-    import ruamel.yaml as yaml
-except ImportError:
-    pip.main(['install', 'ruamel.yaml'])
-    import ruamel.yaml as yaml
+import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
 argParse.add_argument('-f', '--app-ci-info-file', dest='f')
@@ -88,7 +82,11 @@ if not os.path.isdir(repoDir + '/.git'):
 with open(opts.d + '/' + opts.f, 'r') as appCiInfoFile:
     # Use round trip load and dump to store file with current format and comments
     appCiInfo = yaml.round_trip_load(appCiInfoFile)
-    properties = json.loads(opts.p)
+    try:
+        properties = json.loads(opts.p)
+    except ValueError as ex:
+        print("Inavalid File map : " + str(ex))
+        exit(1)
     # Updates properties
     for prop in properties:
         parentKeys = prop.split('.')

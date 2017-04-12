@@ -61,4 +61,5 @@ parameters="{\"${PARENT_KEY_NODE}live-group\":\"${LIVE_GROUP}\",\
 \"${PARENT_KEY_NODE}is-deployment-rollback-valid\":\"${IS_DEPLOYMENT_ROLLBACK_VALID}\",\
 \"${PARENT_KEY_NODE}is-group-switch-valid\":\"${IS_GROUP_SWITCH_VALID}\",\
 \"${PARENT_KEY_NODE}switched-to-new-group\":\"${SWITCHED_TO_NEW_GROUP}\"}"
-python3 /app/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /app/stakater/ci-info -p ${parameters} || exit 1
+sudo python3 /app/stakater/pipeline-library/util/write-to-yml.py -f ${APP_NAME}/app-ci-info.yml -d /app/stakater/ci-info -p ${parameters} || exit 1
+sudo python3 /app/stakater/pipeline-library/util/commit-changes.py -m "update bg deployment state" -d /app/stakater/ci-info -f [\"${APP_NAME}/app-ci-info.yml\"] || exit 1

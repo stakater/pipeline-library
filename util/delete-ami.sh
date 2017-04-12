@@ -72,8 +72,8 @@ region=${region::-1}
 ## Get Blue Green AMIs
 DEPLOYMENT_STATE_FILE="/app/stakater/ci-info/${APP_NAME}/app-ci-info.yml"
 PARENT_KEY_NODE="ci-data.blue-green-deployment.${ENVIRONMENT}."
-blueGroupAmi="'`python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id`'"
-greenGroupAmi="'`python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id`'"
+blueGroupAmi="'`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}blue-group-ami-id`'"
+greenGroupAmi="'`sudo python3 /app/stakater/pipeline-library/util/read-from-yml.py -f ${DEPLOYMENT_STATE_FILE} -p ${PARENT_KEY_NODE}green-group-ami-id`'"
 
 ## GET Latest AMI
 OUTPUT_FILE_PATH="/app/${APP_NAME}/${ENVIRONMENT}/cd/vars"
