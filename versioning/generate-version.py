@@ -73,25 +73,21 @@ versionRegex = r'[0-9]+.[0-9]+.[0-9]+\+[0-9]+'
 
 if not any([opts.d]):
     argParse.print_usage()
-    print('Argument `-d` or `--repo-dir` must be specified')
-    quit()
+    exit('Argument `-d` or `--repo-dir` must be specified')
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--app-ci-info-file` must be specified')
-    quit()
+    exit('Argument `-f` or `--app-ci-info-file` must be specified')
 
 repoDir = opts.d
 if not os.path.isdir(repoDir):
     print("Given Repository path does not exist or is not a directory")
     exit(1)
 if not os.path.isdir(repoDir + '/.git'):
-    print("Given repository directory is not a git repository")
-    exit(1)
+    exit("Given repository directory is not a git repository")
 if not os.path.isfile(repoDir + '/' + appInfoFileName):
-    print('Given repository does not contain a "app-info.yml" file.\n',
-          'Please make sure you place that file with version info in the repository directory.')
-    exit(1)
+    exit('Given repository does not contain a "app-info.yml" file.\n Please make sure you place that file with '
+         'version info in the repository directory.')
 
 # Read from app-info.yml
 appInfoFile = open(repoDir + '/' + appInfoFileName)
@@ -119,10 +115,10 @@ try:
         # Decode pipe output in ascii and strip tailing whitespace characters
         latestTag = describeProc.stdout.decode('ascii').rstrip()
         if not re.match(versionRegex, latestTag):
-            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build-number"',
-                  '\nPlease make sure the latest tag on your git repo is of the given format or the repo does not '
-                  'have any tags')
-            exit(1)
+            exit('The latest tag assigned to the commit is not of the format: '
+                 '"major.minor.patch+build-number"\n'
+                 'Please make sure the latest tag on your git repo is of the given '
+                 'format or the repo does not have any tags')
         # Parse tag of the format major.minor.patch+buildNumber
         latestTagArray = latestTag.split('.')
         latestMajor = int(latestTagArray[0])
@@ -142,9 +138,8 @@ except subprocess.CalledProcessError as describeException:
     if str(describeException.stderr.decode('ascii').rstrip()).__contains__("fatal: No names found"):
         newTag = appInfoVersion
     else:
-        print("Error Code: {} \nError: {}".format(describeException.returncode,
+        exit("Error Code: {} \nError: {}".format(describeException.returncode,
                                                   describeException.stderr.decode('ascii').rstrip()))
-        exit(1)
 
 # Update app-ci-info.yml file
 with open(opts.f, 'w') as f:

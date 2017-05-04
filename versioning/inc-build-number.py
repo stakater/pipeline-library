@@ -55,8 +55,7 @@ opts = argParse.parse_args()
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--app-ci-info-file` must be specified')
-    quit()
+    exit('Argument `-f` or `--app-ci-info-file` must be specified')
 
 appCiInfoFile = open(opts.f)
 # Use round trip load and dump to store file with current format and comments
