@@ -1,0 +1,2 @@
+Go Scripts are in separate folders, (compile, test etc) because they all have package main, and if placed in one directory, they cannot contain methods with different names
+And "non-main" packages, cannot be run directly by `go run`
