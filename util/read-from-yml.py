@@ -52,7 +52,7 @@ except ImportError:
     # Install via subprocess in this script to output of installation
     try:
         ruamelImportProc = subprocess.run(["pip3", "install", "--user", "ruamel.yaml"],
-                                          shell=False,
+                                          shell=True,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE, check=True)
         if ruamelImportProc.returncode == 0:
