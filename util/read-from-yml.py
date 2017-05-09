@@ -51,7 +51,7 @@ except ImportError:
     import subprocess
     # Install via subprocess in this script to output of installation
     try:
-        ruamelImportProc = subprocess.run(["pip", "install", "--user", "ruamel.yaml"],
+        ruamelImportProc = subprocess.run(["pip3", "install", "--user", "ruamel.yaml"],
                                           shell=False,
                                           stdout=subprocess.PIPE,
                                           stderr=subprocess.PIPE, check=True)
