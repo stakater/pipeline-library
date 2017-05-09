@@ -38,14 +38,14 @@
 #
 # Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
 ###############################################################################
-import pip
 import argparse
 
 # Import ruamel.yaml if not exists
 try:
     import ruamel.yaml as yaml
 except ImportError:
-    pip.main(['install', 'ruamel.yaml'])
+    import pip
+    pip.main(['install', '--user', 'ruamel.yaml'])
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()

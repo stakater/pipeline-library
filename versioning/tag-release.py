@@ -40,7 +40,6 @@
 # Argument 2 (-d, --repo-dir): Path to the git repository directory for which the version is to be generated
 ###############################################################################
 
-import pip
 import argparse
 import subprocess
 import re
@@ -50,7 +49,8 @@ import os
 try:
     import ruamel.yaml as yaml
 except ImportError:
-    pip.main(['install', 'ruamel.yaml'])
+    import pip
+    pip.main(['install', '--user', 'ruamel.yaml'])
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()

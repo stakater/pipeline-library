@@ -43,15 +43,16 @@
 # Note: App CI info file is the one which is required by stakater to store CI/CD related data.
 ###############################################################################
 
-import pip
 import argparse
 import json
 import os
+
 # Import ruamel.yaml if not exists
 try:
     import ruamel.yaml as yaml
 except ImportError:
-    pip.main(['install', 'ruamel.yaml'])
+    import pip
+    pip.main(['install', '--user', 'ruamel.yaml'])
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
