@@ -42,6 +42,7 @@
 # Note: App CI info file is the one which is required by stakater to store CI/CD related data.
 ###############################################################################
 
+import pip
 import argparse
 # Import ruamel.yaml if not exists
 try:
