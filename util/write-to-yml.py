@@ -47,7 +47,12 @@ import pip
 import argparse
 import json
 import os
-import ruamel.yaml as yaml
+# Import ruamel.yaml if not exists
+try:
+    import ruamel.yaml as yaml
+except ImportError:
+    pip.main(['install', 'ruamel.yaml'])
+    import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
 argParse.add_argument('-f', '--app-ci-info-file', dest='f')
