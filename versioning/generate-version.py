@@ -81,8 +81,7 @@ if not any([opts.f]):
 
 repoDir = opts.d
 if not os.path.isdir(repoDir):
-    print("Given Repository path does not exist or is not a directory")
-    exit(1)
+    exit("Given Repository path does not exist or is not a directory")
 if not os.path.isdir(repoDir + '/.git'):
     exit("Given repository directory is not a git repository")
 if not os.path.isfile(repoDir + '/' + appInfoFileName):

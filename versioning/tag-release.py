@@ -104,10 +104,9 @@ try:
         # Decode pipe output in ascii and strip tailing whitespace characters
         latestTag = describeProc.stdout.decode('ascii').rstrip()
         if not re.match(versionRegex, latestTag):
-            print('The latest tag assigned to the commit is not of the format: "major.minor.patch+build-number"',
+            exit('The latest tag assigned to the commit is not of the format: "major.minor.patch+build-number"',
                   '\nPlease make sure the latest tag on your git repo is of the given format or the repo does not '
                   'have any tags')
-            exit(1)
         # Parse latest tag of the format major.minor.patch+buildNumber
         latestTagArray = latestTag.split('.')
         latestMajor = int(latestTagArray[0])
@@ -129,16 +128,14 @@ try:
                                and versionPatch == latestPatch and versionBuildNumber > latestBuildNumber
 
         if not (isMajorGreater or isMinorGreater or isPatchGreater or isBuildNumberGreater):
-            print('The given version is not greater/higher than the version on the latest git tag',
+            exit('The given version is not greater/higher than the version on the latest git tag',
                   'Please Make sure the given version is greater or higher than the version on the latest git tag')
-            exit(1)
 # If no git tags exist
 except subprocess.CalledProcessError as describeException:
     # If not error for no tags found, then exit and display the error
     if not (str(describeException.stderr.decode('ascii').rstrip()).__contains__("fatal: No names found")):
-        print("Error Code: {} \nError: {}".format(describeException.returncode,
+        exit("Error Code: {} \nError: {}".format(describeException.returncode,
                                                   describeException.stderr.decode('ascii').rstrip()))
-        exit(1)
 
 # Assign tag to current commit
 try:
@@ -165,7 +162,5 @@ try:
                 exit(0)
 
 except subprocess.CalledProcessError as procException:
-    print('Execution of the following failed: \nCommand: "{}"'.format(procException.cmd, procException.args))
-    print(
+    exit('Execution of the following failed: \nCommand: "{}"'.format(procException.cmd, procException.args) +
         'Error Code: {} \nError: "{}"'.format(procException.returncode, procException.stderr.decode('ascii').rstrip()))
-    exit(1)
