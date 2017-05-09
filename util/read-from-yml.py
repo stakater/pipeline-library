@@ -43,13 +43,25 @@
 ###############################################################################
 
 import argparse
+
 # Import ruamel.yaml if not exists
 try:
     import ruamel.yaml as yaml
 except ImportError:
-    import pip
-    pip.main(['install', '--user', 'ruamel.yaml'])
-    import ruamel.yaml as yaml
+    import subprocess
+    # Install via subprocess in this script to output of installation
+    try:
+        ruamelImportProc = subprocess.run(["pip", "install", "--user", "ruamel.yaml"],
+                                          shell=False,
+                                          stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE, check=True)
+        if ruamelImportProc.returncode == 0:
+            import ruamel.yaml as yaml
+        else:
+            exit("Could not Import Package, Return Code: {}".format(ruamelImportProc.returncode))
+    except subprocess.CalledProcessError as procException:
+        exit("Could not Import package: {}".format(procException.stderr.decode('ascii').rstrip()))
+
 
 argParse = argparse.ArgumentParser()
 argParse.add_argument('-f', '--app-ci-info-file', dest='f')
