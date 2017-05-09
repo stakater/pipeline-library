@@ -36,36 +36,57 @@
 #
 # Authors: Hazim
 #
-# Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
+# Argument 1 (-f, --app-ci-info-dir-path): File path to the app CI info yml file
 ###############################################################################
 import argparse
+import subprocess
+import os
 
 # Import ruamel.yaml if not exists
 try:
     import ruamel.yaml as yaml
 except ImportError:
     import pip
+
     pip.main(['install', '--user', 'ruamel.yaml'])
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
-argParse.add_argument('-f', '--app-ci-info-file', dest='f')
+argParse.add_argument('-f', '--app-ci-info-dir-path', dest='f')
 
 opts = argParse.parse_args()
 
 if not any([opts.f]):
     argParse.print_usage()
-    exit('Argument `-f` or `--app-ci-info-file` must be specified')
+    exit('Argument `-f` or `--app-ci-info-dir-path` must be specified')
 
-appCiInfoFile = open(opts.f)
+appCiInfoDir = opts.f
+if not os.path.isdir(appCiInfoDir):
+    exit("Given Repository path does not exist or is not a directory")
+
+appCiInfoFilePath = appCiInfoDir + '/app-ci-info.yml'
+if not os.path.isfile(appCiInfoFilePath):
+    exit("Given directory path does not contain a file named: 'app-ci-info.yml'")
+
+appCiInfoFile = open(appCiInfoFilePath)
 # Use round trip load and dump to store file with current format and comments
 appCiInfo = yaml.round_trip_load(appCiInfoFile)
 currentBuildNumber = int(appCiInfo['ci-data']['current-build-number'])
 appCiInfoFile.close()
 
 # Write new build number to file
-with open(opts.f, 'w') as f:
-    newBuildNumber = currentBuildNumber + 1
+newBuildNumber = currentBuildNumber + 1
+with open(appCiInfoFilePath, 'w') as f:
     appCiInfo['ci-data']['current-build-number'] = newBuildNumber
     yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
     print("Build Number: {}".format(newBuildNumber))
+
+try:
+    comitProc = subprocess.run(['git', '-C', appCiInfoDir, 'commit', '-m', '[Stakater] Updated Build Number to: '
+                                + str(newBuildNumber)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    print(comitProc.stdout)
+    pushProc = subprocess.run(['git', '-C', appCiInfoDir, 'push'], stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, check=True)
+    print(pushProc.stdout)
+except subprocess.CalledProcessError as addException:
+    exit("Error Code: {} \nError: {}".format(addException.returncode, addException.stderr.decode('ascii').rstrip()))
