@@ -83,7 +83,7 @@ with open(appCiInfoFilePath, 'w') as f:
 
 try:
     addProc = subprocess.run(['git', '-C', appCiInfoDir, 'add', appCiInfoFilePath], stdout=subprocess.PIPE, check=True)
-    print('Git add: {}'.format(addProc.stdout.decode('ascii').rstrip()))
+    print(addProc.stdout.decode('ascii').rstrip())
     commitProc = subprocess.run(['git', '-C', appCiInfoDir, 'commit', '-m', '[Stakater] Updated Build Number to: '
                                 + str(newBuildNumber)], stdout=subprocess.PIPE, check=True)
     print('Git Commit: {}'.format(commitProc.stdout.decode('ascii').rstrip()))
