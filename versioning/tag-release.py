@@ -61,21 +61,18 @@ opts = argParse.parse_args()
 
 if not any([opts.d]):
     argParse.print_usage()
-    print('Argument `-d` or `--repo-dir` must be specified')
-    quit()
+    exit('Argument `-d` or `--repo-dir` must be specified')
 
 if not any([opts.f]):
     argParse.print_usage()
-    print('Argument `-f` or `--app-ci-info-file` must be specified')
-    quit()
+    exit('Argument `-f` or `--app-ci-info-file` must be specified')
 
 repoDir = opts.d
 if not os.path.isdir(repoDir):
-    print("Given Repository path does not exist or is not a directory")
-    exit(1)
+    exit("Given Repository path does not exist or is not a directory")
+
 if not os.path.isdir(repoDir + '/.git'):
-    print("Given repository directory is not a git repository")
-    exit(1)
+    exit("Given repository directory is not a git repository")
 
 versionRegex = r'[0-9]+.[0-9]+.[0-9]+\+[0-9]+'
 
@@ -84,16 +81,14 @@ appCiInfo = yaml.round_trip_load(appCiInfoFile)
 appCiInfoFile.close()
 
 if int(appCiInfo['ci-data']['current-build-number']) <= 0:
-    print('current-build-number has not been updated yet\n',
+    exit('current-build-number has not been updated yet\n',
           'Run "generate-version.py" first to update the current build number')
-    exit(1)
 
 version = str(appCiInfo['ci-data']['current-version'])
 
 if not re.match(versionRegex, version):
-    print('The given version in the app ci yml file is not of the format: "major.minor.patch+build-number"',
+    exit('The given version in the app ci yml file is not of the format: "major.minor.patch+build-number"',
           '\nPlease make sure that the version is of the given format')
-    exit(1)
 
 # Make sure the given tag is greater than the already assigned tag
 try:
