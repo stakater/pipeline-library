@@ -42,7 +42,7 @@
 #
 # Authors: Hazim
 #
-# Argument 1 (-f, --app-ci-info-file): File path to the app CI info yml file
+# Argument 1 (-f, --app-ci-info-dir-path): File path to the app CI info yml file
 # Argument 2 (-d, --repo-dir): Path to the git repository directory for which the version is to be generated
 #
 # Note: App CI info file is the one which is required by stakater to store CI/CD related data.
@@ -60,11 +60,12 @@ try:
     import ruamel.yaml as yaml
 except ImportError:
     import pip
+
     pip.main(['install', '--user', 'ruamel.yaml'])
     import ruamel.yaml as yaml
 
 argParse = argparse.ArgumentParser()
-argParse.add_argument('-f', '--app-ci-info-file', dest='f')
+argParse.add_argument('-f', '--app-ci-info-dir-path', dest='f')
 argParse.add_argument('-d', '--repo-dir', dest='d')
 
 opts = argParse.parse_args()
@@ -77,7 +78,7 @@ if not any([opts.d]):
 
 if not any([opts.f]):
     argParse.print_usage()
-    exit('Argument `-f` or `--app-ci-info-file` must be specified')
+    exit('Argument `-f` or `--app-ci-info-dir-path` must be specified')
 
 repoDir = opts.d
 if not os.path.isdir(repoDir):
@@ -93,8 +94,16 @@ appInfoFile = open(repoDir + '/' + appInfoFileName)
 appInfo = yaml.round_trip_load(appInfoFile)
 appInfoFile.close()
 
+appCiInfoDir = opts.f
+if not os.path.isdir(appCiInfoDir):
+    exit("Given Repository path does not exist or is not a directory")
+
+appCiInfoFilePath = appCiInfoDir + '/app-ci-info.yml'
+if not os.path.isfile(appCiInfoFilePath):
+    exit("Given directory path does not contain a file named: 'app-ci-info.yml'")
+
 # read from app-ci-info.yml
-appCiInfoFile = open(opts.f)
+appCiInfoFile = open(appCiInfoFilePath)
 # Use round trip load and dump to store file with current format and comments
 appCiInfo = yaml.round_trip_load(appCiInfoFile)
 # Should already be updated by inc-build-number.py
@@ -138,10 +147,21 @@ except subprocess.CalledProcessError as describeException:
         newTag = appInfoVersion
     else:
         exit("Error Code: {} \nError: {}".format(describeException.returncode,
-                                                  describeException.stderr.decode('ascii').rstrip()))
+                                                 describeException.stderr.decode('ascii').rstrip()))
 
 # Update app-ci-info.yml file
-with open(opts.f, 'w') as f:
+with open(appCiInfoFilePath, 'w') as f:
     appCiInfo['ci-data']['current-version'] = newTag
     yaml.round_trip_dump(appCiInfo, f, default_flow_style=False)
     print("New version: {}".format(newTag))
+
+try:
+    addProc = subprocess.run(['git', '-C', appCiInfoDir, 'add', appCiInfoFilePath], stdout=subprocess.PIPE, check=True)
+    print(addProc.stdout.decode('ascii').rstrip())
+    commitProc = subprocess.run(['git', '-C', appCiInfoDir, 'commit', '-m', '[Stakater] Updated Version to: '
+                                 + str(newTag)], stdout=subprocess.PIPE, check=True)
+    print('Git Commit: {}'.format(commitProc.stdout.decode('ascii').rstrip()))
+    pushProc = subprocess.run(['git', '-C', appCiInfoDir, 'push'], stdout=subprocess.PIPE, check=True)
+    print('Git Push: {}'.format(pushProc.stdout.decode('ascii').rstrip()))
+except subprocess.CalledProcessError as addException:
+    exit("Error Code: {} \nError: {}".format(addException.returncode, addException.stderr))
