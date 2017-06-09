@@ -56,14 +56,14 @@ do
           ;;
         *)
           echo "Usage: $(basename $0) -a <APP NAME> -e <ENVIRONMENT>"
-          exit 0
+          exit 1
           ;;
     esac
 done
 
 if $aOptionFlag || $eOptionFlag ; then
   echo "Usage: $(basename $0) -a <APP NAME> -e <ENVIRONMENT>"
-  exit 0;
+  exit 1;
 fi
 
 region=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
