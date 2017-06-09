@@ -66,5 +66,5 @@ if $eOptionFlag || $uOptionFlag ; then
   exit 1;
 fi
 
-git config --global user.email '$EMAIL';
-git config --global user.name '$USERNAME';
+git config --global user.email "$EMAIL";
+git config --global user.name "$USERNAME";
