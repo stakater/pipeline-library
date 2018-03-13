@@ -38,8 +38,8 @@ ENVIRONMENT=""
 DEPLOY_INSTANCE_TYPE="t2.nano" # default value
 SSL_CERTIFICATE_ARN="";
 IS_ELB_INTERNAL=false;
-ACTIVE_CIDR="\"0.0.0.0/0\""
-TEST_CIDR="\"0.0.0.0/0\""
+ACTIVE_ELB_CIDR_BLOCK="\"0.0.0.0/0\""
+TEST_ELB_CIDR_BLOCK="\"0.0.0.0/0\""
 ENV_STATE_KEY=""
 
 kOptionFlag=false;
@@ -70,10 +70,10 @@ do
           DEPLOY_INSTANCE_TYPE=$OPTARG
           ;;
         n)
-          TEST_CIDR=$OPTARG
+          TEST_ELB_CIDR_BLOCK=$OPTARG
           ;;
         o)
-          ACTIVE_CIDR=$OPTARG
+          ACTIVE_ELB_CIDR_BLOCK=$OPTARG
           ;;
         s)
           SSL_CERTIFICATE_ARN=$OPTARG
@@ -116,4 +116,4 @@ fi;
 ##############################################
 
 # Update blue green deployment group
-/app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY} "${ACTIVE_CIDR}" "${TEST_CIDR}" || exit 1
+/app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY} "${ACTIVE_ELB_CIDR_BLOCK}" "${TEST_ELB_CIDR_BLOCK}" || exit 1
