@@ -38,6 +38,8 @@ ENVIRONMENT=""
 DEPLOY_INSTANCE_TYPE="t2.nano" # default value
 SSL_CERTIFICATE_ARN="";
 IS_ELB_INTERNAL=false;
+ACTIVE_CIDR="\"0.0.0.0/0\""
+TEST_CIDR="\"0.0.0.0/0\""
 ENV_STATE_KEY=""
 
 kOptionFlag=false;
@@ -45,7 +47,7 @@ aOptionFlag=false;
 eOptionFlag=false;
 fOptionFlag=false;
 # Get options from the command line
-while getopts ":k:r:a:e:f:i:s:t:" OPTION
+while getopts ":k:r:a:e:f:i:n:o:s:t:" OPTION
 do
     case $OPTION in
         k)
@@ -67,6 +69,12 @@ do
         i)
           DEPLOY_INSTANCE_TYPE=$OPTARG
           ;;
+        n)
+          TEST_CIDR=$OPTARG
+          ;;
+        o)
+          ACTIVE_CIDR=$OPTARG
+          ;;
         s)
           SSL_CERTIFICATE_ARN=$OPTARG
           ;;
@@ -74,7 +82,7 @@ do
           IS_ELB_INTERNAL=$OPTARG
           ;;
         *)
-          echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> -t <IS ELB INTERNAL ? > (optional)"
+          echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -o <active elb security group cidr> -n <test elb security group cidr> -s <SSL CERTIFICATE ARN?> -t <IS ELB INTERNAL ? > (optional)"
           exit 1
           ;;
     esac
@@ -82,7 +90,7 @@ done
 
 if ! $kOptionFlag || ! $rOptionFlag || ! $aOptionFlag || ! $eOptionFlag;
 then
-  echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -s <SSL CERTIFICATE ARN?> (optional) -t <IS ELB INTERNAL ? > (optional)"
+  echo "Usage: $(basename $0) -k <key for the state file> -a <app-name> -e <environment> -f <tf-state-key> -i <deploy instance type> -o <active elb security group cidr> -n <test elb security group cidr> -s <SSL CERTIFICATE ARN?> (optional) -t <IS ELB INTERNAL ? > (optional)"
   exit 1;
 fi
 
@@ -108,4 +116,4 @@ fi;
 ##############################################
 
 # Update blue green deployment group
-/app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY} || exit 1
+/app/stakater/pipeline-library/blue-green-deployment/update-bg-deployment-groups.sh ${APP_NAME} ${ENVIRONMENT} ${AMI_ID} ${AWS_REGION} ${DEPLOY_INSTANCE_TYPE} ${DEPLOY_STATE_KEY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ENV_STATE_KEY} ${ACTIVE_CIDR} ${TEST_CIDR} || exit 1

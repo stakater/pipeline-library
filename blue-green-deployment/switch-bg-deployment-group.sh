@@ -66,6 +66,8 @@ ENV_STATE_KEY=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} env_state_
 DEPLOY_INSTANCE_TYPE=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} instance_type` || exit 1
 SSL_CERTIFICATE_ARN=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} ssl_certificate_arn` || exit 1
 IS_ELB_INTERNAL=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} is_elb_internal` || exit 1
+ACTIVE_CIDR=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} active_cidr` || exit 1
+TEST_CIDR=`/gocd-data/scripts/read-parameter.sh ${BG_PARAMS_FILE} test_cidr` || exit 1
 # Remove unwanted characters
 TF_STATE_BUCKET_NAME=${TF_STATE_BUCKET_NAME//\"}
 TF_GLOBAL_ADMIRAL_STATE_KEY=${TF_GLOBAL_ADMIRAL_STATE_KEY//\"}
@@ -73,6 +75,8 @@ ENV_STATE_KEY=${ENV_STATE_KEY//\"}
 DEPLOY_INSTANCE_TYPE=${DEPLOY_INSTANCE_TYPE//\"}
 SSL_CERTIFICATE_ARN=${SSL_CERTIFICATE_ARN//\"}
 IS_ELB_INTERNAL=${IS_ELB_INTERNAL//\"}
+ACTIVE_CIDR=${ACTIVE_CIDR//\"}
+TEST_CIDR=${TEST_CIDR//\"}
 
 ## Get deployment state values
 DEPLOYMENT_STATE_FILE="/app/stakater/ci-info/${APP_NAME}/app-ci-info.yml"
@@ -100,6 +104,8 @@ echo "TF_BG_STATE_KEY: ${ENV_STATE_KEY}"
 echo "DEPLOY_STATE_KEY: ${DEPLOY_STATE_KEY}"
 echo "SSL_CERTIFICATE_ARN: ${SSL_CERTIFICATE_ARN}"
 echo "IS_ELB_INTERNAL: ${IS_ELB_INTERNAL}"
+echo "ACTIVE_CIDR: ${ACTIVE_CIDR}"
+echo "TEST_CIDR: ${TEST_CIDR}"
 echo "###################################################"
 
 
@@ -184,7 +190,7 @@ echo "GREEN_GROUP_MIN_ELB_CAPACITY: ${GREEN_GROUP_MIN_ELB_CAPACITY}"
 echo "#######################################################################"
 
 # Write terraform variables to .tfvars file
-/gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} || exit 1
+/gocd-data/scripts/write-terraform-variables.sh ${APP_NAME} ${ENVIRONMENT} ${AWS_REGION} ${TF_STATE_BUCKET_NAME} ${ENV_STATE_KEY} ${TF_GLOBAL_ADMIRAL_STATE_KEY} ${DEPLOY_INSTANCE_TYPE} ${BLUE_GROUP_AMI_ID} ${BLUE_CLUSTER_MIN_SIZE} ${BLUE_CLUSTER_MAX_SIZE} ${BLUE_CLUSTER_DESIRED_SIZE} ${BLUE_GROUP_LOAD_BALANCERS} ${BLUE_GROUP_MIN_ELB_CAPACITY} ${GREEN_GROUP_AMI_ID} ${GREEN_CLUSTER_MIN_SIZE} ${GREEN_CLUSTER_MAX_SIZE} ${GREEN_CLUSTER_DESIRED_SIZE} ${GREEN_GROUP_LOAD_BALANCERS} ${GREEN_GROUP_MIN_ELB_CAPACITY} "${SSL_CERTIFICATE_ARN}" ${IS_ELB_INTERNAL} ${ACTIVE_CIDR} ${TEST_CIDR} || exit 1
 
 # Apply terraform changes
 /gocd-data/scripts/terraform-apply-changes.sh ${APP_NAME} ${ENVIRONMENT} ${TF_STATE_BUCKET_NAME} ${DEPLOY_STATE_KEY} ${AWS_REGION} || exit 1
